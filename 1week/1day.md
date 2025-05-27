@@ -202,13 +202,15 @@
     name: string;
     age: number;
   } {
-    let age = user.age ? user.age : 18;
+    let age = user.age ?? 18;
     return { ...user, age };
   }
   
   // 테스트 코드
   console.log(updateUser({ name: "Charlie" })); // { name: "Charlie", age: 18 }
   console.log(updateUser({ name: "Dana", age: 25 })); // { name: "Dana", age: 25 }
+  console.log(updateUser({ name: "ws", age: 0 })); // { name: "Dana", age: 25 }
+  
   ```
 
 
