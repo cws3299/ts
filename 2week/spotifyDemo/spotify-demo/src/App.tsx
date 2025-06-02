@@ -1,25 +1,30 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import logo from "./logo.svg";
+import "./App.css";
+import { Routes, Route } from "react-router";
+import AppLayout from "./layout/AppLayout";
+import HomePage from "./pages/HomePage/HomePage";
+import SearchPage from "./pages/SearchPage/SearchPage";
+
+// Sidebar
+
+// 1. Home                    -> /
+// 2. Search                  -> /search
+// 3. Search Result           -> /search/:keyword
+// 4. PlayList Detail         -> /playlist/:id
+// 5. (모바일 버전) PlayList    -> /playlist
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Routes>
+      <Route path="/" element={<AppLayout />}>
+        <Route index element={<HomePage />} />
+        <Route path="search" element={<SearchPage />} />
+        {/* <Route path="search/:keyword" element={<SearchWithKeywordPage />} />
+        <Route path="playlist/:id" element={<PlaylistDetailPage />} />
+        <Route path="playlist" element={<LibraryPage />} /> */}
+      </Route>
+    </Routes>
   );
 }
 
