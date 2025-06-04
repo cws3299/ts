@@ -46,9 +46,12 @@ const StyledNavLink = styled(NavLink)(({ theme }) => ({
   paddingBottom: "10px",
   color: theme.palette.text.secondary,
   "&:hover": {
-    color: theme.palette.text.primary,
+    color: "#FAF0E6",
   },
   "&:active": {
+    color: theme.palette.text.primary,
+  },
+  "&.active": {
     color: theme.palette.text.primary,
   },
 }));
