@@ -83,7 +83,6 @@ module.exports = (env, argv) => {
         template: path.resolve(__dirname, "src", "index.html"), // 해당 파일 필수
       }),
       new Dotenv({
-        // 환경 변수 파일로드 관련 내용임
         allowEmptyValues: true,
         systemvars: true,
       }),

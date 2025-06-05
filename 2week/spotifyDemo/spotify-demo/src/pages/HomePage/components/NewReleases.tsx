@@ -1,8 +1,9 @@
 import { Typography } from "@mui/material";
-import { ClientId } from "../../../config/authConfig";
+import useGetNewReleases from "../../../hooks/useGetNewReleases";
 
 const NewReleases = () => {
-  console.log(ClientId);
+  const { data, error, isLoading } = useGetNewReleases();
+  console.log("봐볼래?", data);
   return (
     <div>
       <Typography variant="h1" paddingTop="8px">
