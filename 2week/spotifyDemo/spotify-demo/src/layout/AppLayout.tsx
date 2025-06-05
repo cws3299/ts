@@ -1,9 +1,9 @@
-import React from "react";
 import { NavLink, Outlet } from "react-router";
 import { Box, styled, Typography } from "@mui/material";
 import { Home, Search } from "@mui/icons-material";
 import LibraryHead from "./components/LibraryHead";
 import Library from "./components/Library";
+import Navbar from "./components/Navbar";
 
 const Layout = styled("div")({
   display: "flex",
@@ -81,8 +81,10 @@ const AppLayout = () => {
           <Library />
         </ContentBox>
       </Sidebar>
-
-      <Outlet />
+      <ContentBox>
+        <Navbar />
+        <Outlet />
+      </ContentBox>
     </Layout>
   );
 };

@@ -29,7 +29,7 @@ const EmptyPlaylist = () => {
           color="secondary"
           style={{
             fontWeight: "700",
-            width: "50%",
+            width: "80%",
           }}
         >
           Create playlist
