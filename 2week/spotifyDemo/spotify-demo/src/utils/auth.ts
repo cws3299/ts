@@ -4,6 +4,7 @@ import { AuthUrlParams } from "../models/auth";
 import { base64encode, generateRandomString, sha256 } from "./crypto";
 
 export const getSpotifyAuthUrl = async () => {
+  console.log(RedirectUri);
   const codeVerifier = generateRandomString(64);
   const hashed = await sha256(codeVerifier);
   const codeChallenge = base64encode(hashed);
