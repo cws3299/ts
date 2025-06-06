@@ -9,7 +9,7 @@ export const getSpotifyAuthUrl = async () => {
   const codeChallenge = base64encode(hashed);
 
   const clientId = CLIENT_ID;
-  const redirectUri = "https://stellar-rugelach-f14a3a.netlify.app";
+  const redirectUri = RedirectUri;
 
   const scope = "user-read-private user-read-email"; // api permission
   const authUrl = new URL("https://accounts.spotify.com/authorize");
