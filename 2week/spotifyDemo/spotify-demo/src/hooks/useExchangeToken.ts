@@ -11,7 +11,6 @@ const useExchangeToken = () => {
   return useMutation<ExchangeTokenResponse, Error, Parameter>({
     mutationFn: ({ code, codeVerifier }) => exchangeToken(code, codeVerifier),
     onSuccess: (data) => {
-      console.log(data);
       localStorage.setItem("access_token", data.access_token);
     },
   });

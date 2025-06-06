@@ -6,7 +6,6 @@ import { ReleaseAlbumCard } from "../../../common/components/Card";
 
 const NewReleases = () => {
   const { data, error, isLoading } = useGetNewReleases();
-  console.log("데이터", data);
 
   if (isLoading) {
     return <LoadingSpinner />;
