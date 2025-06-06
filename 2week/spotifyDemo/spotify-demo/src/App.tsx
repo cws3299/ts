@@ -30,6 +30,11 @@ function App() {
   const { mutate: exchangeToken } = useExchangeToken();
 
   useEffect(() => {
+    // access_token이 이미 있는데 새로고침하면, 다시 exchangeToken이 실행됨
+    if (localStorage.getItem("access_token")) {
+      return;
+    }
+
     if (code && codeVerifier) {
       exchangeToken({ code, codeVerifier });
     }
