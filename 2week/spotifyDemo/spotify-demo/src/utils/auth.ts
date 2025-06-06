@@ -4,13 +4,12 @@ import { AuthUrlParams } from "../models/auth";
 import { base64encode, generateRandomString, sha256 } from "./crypto";
 
 export const getSpotifyAuthUrl = async () => {
-  console.log(RedirectUri);
   const codeVerifier = generateRandomString(64);
   const hashed = await sha256(codeVerifier);
   const codeChallenge = base64encode(hashed);
 
   const clientId = CLIENT_ID;
-  const redirectUri = RedirectUri;
+  const redirectUri = "https://stellar-rugelach-f14a3a.netlify.app";
 
   const scope = "user-read-private user-read-email"; // api permission
   const authUrl = new URL("https://accounts.spotify.com/authorize");
