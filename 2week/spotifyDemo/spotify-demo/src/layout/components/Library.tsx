@@ -1,7 +1,10 @@
+import useGetCurrentUserPlayLists from "../../hooks/useGetCurrentUserPlayLists";
 import EmptyPlaylist from "./EmptyPlaylist";
 
 // 로그인 한 경우와 안한경우에 따라 표현할 요소가 다르며, 표현할 UI들을 조합하여 사용하기 때문에 Library분리
 const Library = () => {
+  const { data } = useGetCurrentUserPlayLists({ limit: 10, offset: 0 });
+  console.log("여기", data);
   return <EmptyPlaylist />;
 };
 
