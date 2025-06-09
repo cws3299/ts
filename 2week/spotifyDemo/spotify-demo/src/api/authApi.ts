@@ -1,10 +1,12 @@
 import axios from "axios";
+
 import { CLIENT_ID, CLIENT_SECRET } from "../config/authConfig";
 import {
   ClientCredentialTokenResponse,
   ExchangeTokenResponse,
 } from "../models/auth";
 import { RedirectUri } from "../config/commonConfig";
+import { getSpotifyAuthUrl } from "../utils/auth";
 
 const encodeBase64 = (data: string) => {
   if (typeof window !== "undefined") return btoa(data);
@@ -63,6 +65,12 @@ export const exchangeToken = async (
 
     return response.data;
   } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      // 401 에러일 때 토큰 제거하고 재인증 시작
+      localStorage.removeItem("access_token");
+      await getSpotifyAuthUrl();
+      throw new Error("401 Unauthorized Error: Token expired or invalid");
+    }
     throw new Error("Token Error");
   }
 };
