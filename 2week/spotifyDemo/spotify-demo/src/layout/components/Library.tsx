@@ -1,11 +1,82 @@
+import { styled } from "@mui/material";
+import ErroeMessage from "../../common/components/ErrorMessage";
+import LoadingSpinner from "../../common/components/loadingSpinner";
 import useGetCurrentUserPlayLists from "../../hooks/useGetCurrentUserPlayLists";
 import EmptyPlaylist from "./EmptyPlaylist";
+import PlayList from "./PlayList";
+import useGetCurrentUserProfile from "../../hooks/useGetCurrentUserProfile";
+import { useInView } from "react-intersection-observer";
+import { useEffect } from "react";
 
-// 로그인 한 경우와 안한경우에 따라 표현할 요소가 다르며, 표현할 UI들을 조합하여 사용하기 때문에 Library분리
+const PlaylistContainer = styled("div")(({ theme }) => ({
+  overflowY: "auto",
+  maxHeight: "calc(100vh - 240px)",
+  height: "100%",
+  paddingRight: 8,
+
+  "&::-webkit-scrollbar": {
+    display: "none",
+  },
+  "&::-webkit-scrollbar-track": {
+    backgroundColor: "transparent",
+  },
+  "&::-webkit-scrollbar-thumb": {
+    backgroundColor: "#c1c1c1",
+    borderRadius: 4,
+  },
+  "&::-webkit-scrollbar-thumb:hover": {
+    backgroundColor: "#a0a0a0",
+  },
+
+  [theme.breakpoints.down("sm")]: {
+    maxHeight: "calc(100vh - 180px)",
+  },
+}));
+
 const Library = () => {
-  const { data } = useGetCurrentUserPlayLists({ limit: 10, offset: 0 });
-  console.log("여기", data);
-  return <EmptyPlaylist />;
+  const { ref, inView } = useInView();
+  const {
+    data,
+    error,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useGetCurrentUserPlayLists({
+    limit: 10,
+  });
+
+  const { data: user } = useGetCurrentUserProfile();
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView]);
+
+  if (!user) return <EmptyPlaylist />;
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return <ErroeMessage errorMessage={error.message} />;
+  }
+
+  return (
+    <>
+      {!data || data?.pages[0].total === 0 ? (
+        <EmptyPlaylist />
+      ) : (
+        <PlaylistContainer>
+          {data?.pages.map((page, index) => (
+            <PlayList playLists={page.items} key={index} />
+          ))}
+          <div ref={ref}>{isFetchingNextPage && <LoadingSpinner />}</div>
+        </PlaylistContainer>
+      )}
+    </>
+  );
 };
 
 export default Library;

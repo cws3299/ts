@@ -12,7 +12,7 @@ export interface SimplifiedPlaylist {
   external_urls?: ExternalUrls;
   href?: string;
   id?: string;
-  images?: Image;
+  images?: Image[];
   name?: string;
   owner?: Owner;
   public: boolean;
