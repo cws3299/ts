@@ -19,6 +19,7 @@ import { PAGE_LIMIT } from "../../config/commonConfig";
 import { useEffect } from "react";
 import LoadingSpinner from "../../common/components/loadingSpinner";
 import { useInView } from "react-intersection-observer";
+import EmptyPlaylistWithSearch from "./components/EmptyPlaylistWithSearch";
 
 const HEADER_HEIGHT = 280;
 
@@ -158,7 +159,7 @@ const PlaylistDetailPage = () => {
       </PlaylistHeader>
 
       {playlist?.tracks?.total === 0 ? (
-        <Typography>서치</Typography>
+        <EmptyPlaylistWithSearch />
       ) : (
         <>
           <Table stickyHeader>
