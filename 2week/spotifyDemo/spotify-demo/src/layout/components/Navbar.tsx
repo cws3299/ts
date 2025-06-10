@@ -1,7 +1,8 @@
 import { Avatar, Box, Typography, styled } from "@mui/material";
-import { useState, useRef, useLayoutEffect } from "react";
+import { useState, useRef, useLayoutEffect, useEffect } from "react";
 import LoginButton from "../../common/components/LoginButton";
 import useGetCurrentUserProfile from "../../hooks/useGetCurrentUserProfile";
+import { useAuthStore } from "../../state/AuthStore";
 
 const AvatarButton = styled(Box)({
   display: "flex",
@@ -50,15 +51,26 @@ const Navbar = () => {
     setShowLogout((prev) => !prev);
   };
 
+  const removeId = useAuthStore((state) => state.removeState);
+
   const logout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("code_verifier");
+    removeId();
     window.location.href = "/";
   };
 
   useLayoutEffect(() => {
     if (avatarButtonRef.current) {
       setButtonWidth(avatarButtonRef.current.offsetWidth);
+    }
+  }, [userProfile]);
+
+  const setUserId = useAuthStore((state) => state.setState);
+
+  useEffect(() => {
+    if (userProfile) {
+      setUserId(userProfile.id);
     }
   }, [userProfile]);
 

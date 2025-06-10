@@ -107,8 +107,6 @@ const PlaylistDetailPage = () => {
     fetchNextPage,
   } = useGetPlaylistItems({ playlist_id: id, limit: PAGE_LIMIT, offset: 0 });
 
-  console.log(playlistItems);
-
   const { ref, inView } = useInView();
 
   useEffect(() => {
