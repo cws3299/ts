@@ -12,6 +12,8 @@ interface PlayListItem {
   name: string;
   artistName: string | null;
   id: string;
+  handleClick: (id: string) => void;
+  selected?: boolean;
 }
 
 const PlayListItemContainer = styled(ListItemButton)(() => ({
@@ -29,9 +31,19 @@ const PlaylistName = styled(Typography)({
   color: "#1db954",
 });
 
-const PlayListItem = ({ name, image, artistName }: PlayListItem) => {
+const PlayListItem = ({
+  id,
+  name,
+  image,
+  artistName,
+  handleClick,
+  selected,
+}: PlayListItem) => {
   return (
-    <PlayListItemContainer>
+    <PlayListItemContainer
+      onClick={() => handleClick(id)}
+      selected={selected || false}
+    >
       <ListItemAvatar>
         {image ? <PlaylistAvatar src={image} alt={name} /> : "No image"}
       </ListItemAvatar>

@@ -10,7 +10,7 @@ import { useEffect } from "react";
 
 const PlaylistContainer = styled("div")(({ theme }) => ({
   overflowY: "auto",
-  maxHeight: "calc(100vh - 240px)",
+  // maxHeight: "calc(100vh - 240px)",
   height: "100%",
   paddingRight: 8,
 

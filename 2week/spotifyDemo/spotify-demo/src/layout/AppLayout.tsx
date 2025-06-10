@@ -25,6 +25,8 @@ const ContentBox = styled(Box)(({ theme }) => ({
   borderRadius: "8px",
   backgroundColor: theme.palette.background.paper,
   color: theme.palette.text.primary,
+  display: "flex",
+  flexDirection: "column",
   width: "100%",
   height: "100%",
   padding: "8px",
