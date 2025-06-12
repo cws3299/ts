@@ -1,20 +1,25 @@
-import { LastPage } from "@mui/icons-material";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { searchItemsByKeyowrd } from "../api/searchApt";
 import { SearchRequestParams } from "../models/search";
 import useClientCredentialToken from "./useClientCredentialToken";
+import { PAGE_LIMIT } from "../config/commonConfig";
 
 const useSearchItemsByKeyword = (params: SearchRequestParams) => {
   const clientToken = useClientCredentialToken();
+
   return useInfiniteQuery({
     queryKey: ["search", params],
+    enabled: !!clientToken && !!params.q?.trim(),
     queryFn: ({ pageParam = 0 }) => {
       if (!clientToken) throw new Error("No Token available");
 
-      return searchItemsByKeyowrd(clientToken, {
-        offset: pageParam,
+      const paramWithPaging: SearchRequestParams = {
         ...params,
-      });
+        offset: pageParam,
+        limit: String(PAGE_LIMIT),
+      };
+
+      return searchItemsByKeyowrd(clientToken, paramWithPaging);
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {

@@ -4,7 +4,7 @@ import { Copyright, ExternalUrls, Image } from "./commonType";
 
 export interface Track {
   album?: SimplifiedAlbum;
-  artists?: Artist;
+  artists?: Artist[];
   available_markets?: string[];
   disc_number?: number;
   duration_ms?: number;

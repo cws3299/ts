@@ -68,7 +68,7 @@ const BackgroundDiv = styled(Paper)(() => ({
 const TableBodyContainer = styled("div")(() => ({
   flex: 1,
   overflowY: "auto",
-  scrollbarWidth: "thin", // Firefox
+  scrollbarWidth: "thin",
   scrollbarColor: "#999 transparent",
 
   "&::-webkit-scrollbar": {
