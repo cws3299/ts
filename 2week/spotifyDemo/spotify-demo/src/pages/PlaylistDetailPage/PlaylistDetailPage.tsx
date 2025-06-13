@@ -20,6 +20,8 @@ import { useEffect } from "react";
 import LoadingSpinner from "../../common/components/loadingSpinner";
 import { useInView } from "react-intersection-observer";
 import EmptyPlaylistWithSearch from "./components/EmptyPlaylistWithSearch";
+import { useAuthStore } from "../../state/AuthStore";
+import UnauthorizedPage from "../../layout/components/UnAuthorizedPage";
 
 const HEADER_HEIGHT = 280;
 
@@ -89,6 +91,12 @@ const TableBodyContainer = styled("div")(() => ({
 
 const PlaylistDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const userId = useAuthStore((state) => state.userId);
+
+  if (!userId) {
+    return <UnauthorizedPage />;
+  }
+
   if (id === undefined) {
     return <Navigate to="/" />;
   }
