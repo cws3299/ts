@@ -93,19 +93,11 @@ const PlaylistDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const userId = useAuthStore((state) => state.userId);
 
-  if (!userId) {
-    return <UnauthorizedPage />;
-  }
-
-  if (id === undefined) {
-    return <Navigate to="/" />;
-  }
-
   const {
     data: playlist,
     isLoading: isPlaylistLoading,
     error: playlistError,
-  } = useGetPlayList({ playlist_id: id });
+  } = useGetPlayList({ playlist_id: id as string });
 
   const {
     data: playlistItems,
@@ -114,7 +106,11 @@ const PlaylistDetailPage = () => {
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
-  } = useGetPlaylistItems({ playlist_id: id, limit: PAGE_LIMIT, offset: 0 });
+  } = useGetPlaylistItems({
+    playlist_id: id as string,
+    limit: PAGE_LIMIT,
+    offset: 0,
+  });
 
   const { ref, inView } = useInView();
 
@@ -123,6 +119,14 @@ const PlaylistDetailPage = () => {
       fetchNextPage();
     }
   }, [inView]);
+
+  if (!userId) {
+    return <UnauthorizedPage />;
+  }
+
+  if (id === undefined) {
+    return <Navigate to="/" />;
+  }
 
   return (
     <BackgroundDiv>
