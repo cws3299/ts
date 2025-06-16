@@ -1,6 +1,7 @@
 import { SimplifiedAlbum } from "./album";
 import { ApiResponse } from "./apiResponse";
 import { Artist } from "./artist";
+import { Image } from "./commonType";
 import { SimplifiedPlaylist } from "./playlist";
 import { Show, SimplifiedAudioBook, SimplifiedEpisode, Track } from "./track";
 
@@ -31,4 +32,31 @@ export interface SearchResponse {
   shows?: ApiResponse<Show>;
   episodes?: ApiResponse<SimplifiedEpisode>;
   autiobooks?: ApiResponse<SimplifiedAudioBook>;
+}
+
+export interface BrowseCategoriesRequest {
+  locale: string;
+  limit: number;
+  offset: number;
+}
+
+export interface GetCategoriesAPIResponse {
+  categories?: Categories;
+}
+
+export interface Categories {
+  href: string;
+  limit: number;
+  next: string | null;
+  offset: number;
+  previous: string | null;
+  total: number;
+  items: CategoryObject[];
+}
+
+export interface CategoryObject {
+  href: string;
+  icons: Image[];
+  id: string;
+  name: string;
 }

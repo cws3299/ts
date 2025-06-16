@@ -26,6 +26,7 @@ export const getCurrentUsetPlayLists = async ({
   }
 };
 
+// 현재 플리 정보
 export const getPlayList = async (
   params: GetPlaylistRequest
 ): Promise<Playlist> => {
@@ -40,6 +41,7 @@ export const getPlayList = async (
   }
 };
 
+// 현재 플리 아이템
 export const getPlaylistItems = async (
   params: GetPlaylistItemsRequest
 ): Promise<GetPlayListItemsResponse> => {

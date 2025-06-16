@@ -27,7 +27,9 @@ export const getSpotifyAuthUrl = async () => {
       redirect_uri: redirectUri,
     };
 
-    authUrl.search = new URLSearchParams(Object.entries(params)).toString();
-    window.location.href = authUrl.toString(); // 스포티파이 로그인 주소를 염
+    console.log(codeVerifier, clientId, redirectUri, scope, authUrl);
+
+    // authUrl.search = new URLSearchParams(Object.entries(params)).toString();
+    // window.location.href = authUrl.toString(); // 스포티파이 로그인 주소를 염
   }
 };

@@ -1,5 +1,7 @@
-import { Avatar, Box, Typography, styled } from "@mui/material";
+import { Avatar, Box, Typography, styled, InputBase } from "@mui/material";
 import { useState, useRef, useLayoutEffect, useEffect } from "react";
+import { useLocation } from "react-router";
+import SearchIcon from "@mui/icons-material/Search";
 import LoginButton from "../../common/components/LoginButton";
 import useGetCurrentUserProfile from "../../hooks/useGetCurrentUserProfile";
 import { useAuthStore } from "../../state/AuthStore";
@@ -41,7 +43,32 @@ const RelativeWrapper = styled(Box)({
   display: "inline-block",
 });
 
+const SearchBox = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "focused",
+})<{ focused: boolean }>(({ focused }) => ({
+  display: "flex",
+  alignItems: "center",
+  border: `1px solid ${focused ? "#1DB954" : "#444"}`,
+  borderRadius: 8,
+  padding: "8px 12px",
+  transition: "border 0.2s ease",
+  gap: "4px",
+}));
+
+const SearchInput = styled(InputBase)({
+  color: "white",
+  flex: 1,
+  fontSize: "14px",
+  "& input::placeholder": {
+    color: "#aaa",
+  },
+});
+
 const Navbar = () => {
+  const location = useLocation();
+  const isSearchPage = location.pathname === "/search";
+  const [isFocused, setIsFocused] = useState(false);
+
   const { data: userProfile } = useGetCurrentUserProfile();
   const [showLogout, setShowLogout] = useState(false);
   const [buttonWidth, setButtonWidth] = useState(0);
@@ -52,6 +79,7 @@ const Navbar = () => {
   };
 
   const removeId = useAuthStore((state) => state.removeState);
+  const setUserId = useAuthStore((state) => state.setState);
 
   const logout = () => {
     localStorage.removeItem("access_token");
@@ -66,8 +94,6 @@ const Navbar = () => {
     }
   }, [userProfile]);
 
-  const setUserId = useAuthStore((state) => state.setState);
-
   useEffect(() => {
     if (userProfile) {
       setUserId(userProfile.id);
@@ -77,11 +103,22 @@ const Navbar = () => {
   return (
     <Box
       display="flex"
-      justifyContent="flex-end"
+      justifyContent={isSearchPage ? "space-between" : "flex-end"}
       alignItems="center"
       height="64px"
-      pr={2}
+      px={3}
     >
+      {isSearchPage && (
+        <SearchBox focused={isFocused}>
+          <SearchIcon sx={{ color: "#aaa", fontSize: 20 }} />
+          <SearchInput
+            placeholder={isFocused ? "" : "What do you want to play?"}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+          />
+        </SearchBox>
+      )}
+
       {userProfile ? (
         <RelativeWrapper>
           <AvatarButton onClick={toggleLogout} ref={avatarButtonRef}>
