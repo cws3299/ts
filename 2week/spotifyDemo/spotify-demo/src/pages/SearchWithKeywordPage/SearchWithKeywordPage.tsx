@@ -9,7 +9,6 @@ import AlbumsBox from "./AlbumsBox";
 
 const SearchWithKeywordPage = () => {
   const { keyword } = useParams<{ keyword: string }>();
-  console.log(keyword);
 
   const {
     data: playlist,
@@ -41,10 +40,6 @@ const SearchWithKeywordPage = () => {
   const isEmptyResult =
     playlist &&
     typesToCheck.every((key) => (playlist as any)[key]?.total === 0);
-
-  console.log("playlist?.tracks", playlist?.tracks);
-  console.log("playlist?.albums", playlist?.albums);
-  console.log("playlist?.artists", playlist?.artists);
 
   return (
     <Box

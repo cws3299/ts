@@ -4,7 +4,6 @@ import useClientCredentialToken from "./useClientCredentialToken";
 
 const useGetNewReleases = () => {
   const clientToken = useClientCredentialToken();
-  console.log("useGetNewReleases 여기 먼저 탐");
 
   return useQuery({
     queryKey: ["new-releases"],

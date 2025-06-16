@@ -80,8 +80,6 @@ export const getSearchResult = async (
     if (params.include_external)
       searchParams.append("include_external", params.include_external);
 
-    console.log(`${SpotifyBaseUrl}/search?${searchParams.toString()}`);
-
     const response = await axios.get(
       `${SpotifyBaseUrl}/search?${searchParams.toString()}`,
       {

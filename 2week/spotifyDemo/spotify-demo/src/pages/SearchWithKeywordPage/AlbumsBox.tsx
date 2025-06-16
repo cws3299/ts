@@ -8,7 +8,6 @@ interface AlbumsBoxProps {
 }
 
 const AlbumsBox = ({ albums }: AlbumsBoxProps) => {
-  console.log(albums);
   return (
     <Box>
       <Typography></Typography>

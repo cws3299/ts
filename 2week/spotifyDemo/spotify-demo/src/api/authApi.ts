@@ -57,8 +57,6 @@ export const exchangeToken = async (
       code_verifier: codeVerifier,
     });
 
-    console.log(url, body);
-
     const response = await axios.post(url, body, {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
