@@ -1,6 +1,6 @@
 import { Avatar, Box, Typography, styled, InputBase } from "@mui/material";
 import { useState, useRef, useLayoutEffect, useEffect } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import SearchIcon from "@mui/icons-material/Search";
 import LoginButton from "../../common/components/LoginButton";
 import useGetCurrentUserProfile from "../../hooks/useGetCurrentUserProfile";
@@ -66,13 +66,33 @@ const SearchInput = styled(InputBase)({
 
 const Navbar = () => {
   const location = useLocation();
-  const isSearchPage = location.pathname === "/search";
   const [isFocused, setIsFocused] = useState(false);
 
   const { data: userProfile } = useGetCurrentUserProfile();
   const [showLogout, setShowLogout] = useState(false);
   const [buttonWidth, setButtonWidth] = useState(0);
   const avatarButtonRef = useRef<HTMLDivElement>(null);
+
+  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
+
+  const isSearchPage = location.pathname.startsWith("/search");
+
+  useEffect(() => {
+    const trimmed = search.trim();
+
+    const debounce = setTimeout(() => {
+      if (isSearchPage && !trimmed) {
+        navigate("/search");
+      } else if (isSearchPage && trimmed) {
+        navigate(`/search/${encodeURIComponent(trimmed)}`);
+      } else {
+        navigate("/");
+      }
+    }, 500); // 500ms 후 실행
+
+    return () => clearTimeout(debounce); // 입력 바뀔 때 이전 타이머 제거
+  }, [search, navigate]);
 
   const toggleLogout = () => {
     setShowLogout((prev) => !prev);
@@ -106,17 +126,23 @@ const Navbar = () => {
       justifyContent={isSearchPage ? "space-between" : "flex-end"}
       alignItems="center"
       height="64px"
+      minHeight="64px"
       px={3}
+      className="testtest"
     >
-      {isSearchPage && (
+      {isSearchPage ? (
         <SearchBox focused={isFocused}>
           <SearchIcon sx={{ color: "#aaa", fontSize: 20 }} />
           <SearchInput
             placeholder={isFocused ? "" : "What do you want to play?"}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </SearchBox>
+      ) : (
+        <Box sx={{ width: 300, height: 40 }} />
       )}
 
       {userProfile ? (
