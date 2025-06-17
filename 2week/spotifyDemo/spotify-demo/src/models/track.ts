@@ -112,3 +112,14 @@ export interface SimplifiedAudioBook {
     total_chapters: number;
   }[];
 }
+
+export interface GetArtistTopTrackRequest {
+  id: string;
+  market: string;
+}
+
+// export type GetArtistTopTrackResponse = Track[];
+
+export interface GetArtistTopTrackResponse {
+  tracks?: Track[];
+}

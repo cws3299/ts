@@ -93,7 +93,6 @@ const ArtistCard = ({ artist }: TopResultProps) => {
       >
         <TruncatedText fontWeight="bold">{artist?.name}</TruncatedText>
       </Tooltip>
-
       <Typography variant="body2" color="text.secondary">
         Artist
       </Typography>
