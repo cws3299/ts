@@ -20,7 +20,7 @@ const TopSongs = ({ items }: TopResultProps) => {
       <Typography variant="h6" fontWeight="bold" mb={1}>
         Top Songs
       </Typography>
-      {items?.slice(0, 5).map((track) => (
+      {items?.slice(0, 4).map((track) => (
         <Box
           key={track.id}
           sx={{

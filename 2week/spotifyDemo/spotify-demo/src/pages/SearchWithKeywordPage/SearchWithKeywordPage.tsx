@@ -6,6 +6,7 @@ import useGetSearchResult from "../../hooks/useGetSearchResult";
 import EmptySearchResult from "./EmptySearchResult";
 import TopArea from "./TopArea";
 import AlbumsBox from "./AlbumsBox";
+import ArtistBox from "./ArtistsBox";
 
 const SearchWithKeywordPage = () => {
   const { keyword } = useParams<{ keyword: string }>();
@@ -49,23 +50,23 @@ const SearchWithKeywordPage = () => {
         flex: 1,
         height: "100%",
         padding: "16px",
+        minHeight: 0,
       }}
     >
       {isEmptyResult ? (
         <EmptySearchResult />
       ) : (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            flex: 1,
-            padding: "8px",
-          }}
-        >
-          <TopArea tracks={playlist?.tracks} />
-          <AlbumsBox albums={playlist?.albums}></AlbumsBox>
-          <Box sx={{ height: "30%" }}>가</Box>
-        </Box>
+        <>
+          <Box sx={{ flex: 4, minHeight: 0 }}>
+            <TopArea tracks={playlist?.tracks} />
+          </Box>
+          <Box sx={{ flex: 3, minHeight: 0 }}>
+            <AlbumsBox albums={playlist?.albums} />
+          </Box>
+          <Box sx={{ flex: 3, minHeight: 0 }}>
+            <ArtistBox artists={playlist?.artists} />
+          </Box>
+        </>
       )}
     </Box>
   );

@@ -10,7 +10,7 @@ interface TopAreaProps {
 
 const TopArea = ({ tracks }: TopAreaProps) => {
   return (
-    <Box sx={{ display: "flex", width: "100%", gap: 2 }}>
+    <Box sx={{ display: "flex", width: "100%", gap: 2, flex: 1 }}>
       <Box sx={{ flex: 4 }}>
         <TopResult item={tracks?.items?.[0]} />
       </Box>

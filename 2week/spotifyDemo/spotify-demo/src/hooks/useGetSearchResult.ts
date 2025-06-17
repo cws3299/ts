@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { getSearchResult } from "../api/searchApt";
 import { SearchRequestParams } from "../models/search";
 import useClientCredentialToken from "./useClientCredentialToken";
-import { PAGE_LIMIT } from "../config/commonConfig";
 
 const useGetSearchResult = (params: SearchRequestParams) => {
   const clientToken = useClientCredentialToken();
@@ -15,7 +14,7 @@ const useGetSearchResult = (params: SearchRequestParams) => {
 
       const paramWithPaging = {
         ...params,
-        limit: String(PAGE_LIMIT),
+        limit: String(20),
       };
 
       return getSearchResult(clientToken, paramWithPaging);
