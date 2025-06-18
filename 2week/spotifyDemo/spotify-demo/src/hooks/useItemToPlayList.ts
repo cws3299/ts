@@ -2,20 +2,26 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AddItemToPlaylistRequest } from "../models/playlist";
 import { addItemToPlayList } from "../api/playlistApi";
 
-const useItemToPlayList = (playlist_id: string) => {
+const useItemToPlayList = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: AddItemToPlaylistRequest) => {
+    mutationFn: ({
+      playlist_id,
+      params,
+    }: {
+      playlist_id: string;
+      params: AddItemToPlaylistRequest;
+    }) => {
       if (playlist_id) {
         return addItemToPlayList(playlist_id, params);
       }
 
       return Promise.reject(new Error("playlist Id is not defined"));
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["playlist-detail", playlist_id],
+        queryKey: ["playlist-detail", variables.playlist_id],
       });
       queryClient.invalidateQueries({
         queryKey: ["playlist-items"],

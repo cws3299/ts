@@ -42,8 +42,6 @@ const SearchWithKeywordPage = () => {
     playlist &&
     typesToCheck.every((key) => (playlist as any)[key]?.total === 0);
 
-  console.log(playlist?.artists);
-
   return (
     <Box
       sx={{

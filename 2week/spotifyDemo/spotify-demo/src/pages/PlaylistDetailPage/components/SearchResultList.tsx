@@ -18,14 +18,17 @@ const SearchResultList = ({ list }: SearchResultListProps) => {
     );
   };
 
-  const { mutate: addItemToPlayList } = useItemToPlayList(id as string);
+  const { mutate: addItemToPlayList } = useItemToPlayList();
 
-  const handleAddItemToPlayList = (uri: string) => {
+  const handleAddItemToPlayList = (id: string, uri: string) => {
     const newUris = uris.includes(uri) ? uris : [...uris, uri];
 
     addItemToPlayList({
-      uris: newUris,
-      position: 0,
+      playlist_id: id,
+      params: {
+        uris: newUris,
+        position: 0,
+      },
     });
   };
 
@@ -77,7 +80,7 @@ const SearchResultList = ({ list }: SearchResultListProps) => {
               sx={{ color: "#1DB954", textTransform: "none", minWidth: 40 }}
               onClick={(e) => {
                 e.stopPropagation(); // 박스 클릭 방지
-                handleAddItemToPlayList(uri);
+                handleAddItemToPlayList(id as string, uri);
               }}
             >
               Add

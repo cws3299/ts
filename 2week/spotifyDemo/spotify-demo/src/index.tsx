@@ -7,6 +7,7 @@ import { BrowserRouter } from "react-router";
 import theme from "./theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ToastProvider } from "./provider/ToastProvider";
 
 const root = ReactDOM.createRoot(
   document.getElementById("content") as HTMLElement
@@ -26,7 +27,9 @@ root.render(
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <QueryClientProvider client={queryClient}>
-          <App />
+          <ToastProvider>
+            <App />
+          </ToastProvider>
         </QueryClientProvider>
       </ThemeProvider>
     </BrowserRouter>

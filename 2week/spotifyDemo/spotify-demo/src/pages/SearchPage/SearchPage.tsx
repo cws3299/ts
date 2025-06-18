@@ -74,7 +74,6 @@ const SearchPage = () => {
           display: "flex",
           flexDirection: "column",
           gap: 2,
-          padding: 10,
           "&::-webkit-scrollbar": {
             width: "6px",
             display: "auto",
@@ -99,7 +98,6 @@ const SearchPage = () => {
               sx={{
                 display: "flex",
                 gap: 2,
-                justifyContent: "space-between",
                 width: "100%",
                 boxSizing: "border-box",
               }}

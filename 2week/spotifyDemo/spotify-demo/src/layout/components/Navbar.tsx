@@ -77,22 +77,29 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const isSearchPage = location.pathname.startsWith("/search");
+  const { keyword } = useParams<{ keyword: string }>();
+
+  useEffect(() => {
+    if (isSearchPage && keyword) {
+      setSearch(keyword);
+    }
+  }, [isSearchPage, keyword]);
 
   useEffect(() => {
     const trimmed = search.trim();
 
     const debounce = setTimeout(() => {
-      if (isSearchPage && !trimmed) {
-        navigate("/search");
-      } else if (isSearchPage && trimmed) {
-        navigate(`/search/${encodeURIComponent(trimmed)}`);
-      } else {
-        navigate("/");
-      }
-    }, 500); // 500ms 후 실행
+      if (!isSearchPage) return;
 
-    return () => clearTimeout(debounce); // 입력 바뀔 때 이전 타이머 제거
-  }, [search, navigate]);
+      if (!trimmed) {
+        navigate("/search", { replace: true });
+      } else {
+        navigate(`/search/${encodeURIComponent(trimmed)}`, { replace: true });
+      }
+    }, 500);
+
+    return () => clearTimeout(debounce);
+  }, [search, isSearchPage, navigate]);
 
   const toggleLogout = () => {
     setShowLogout((prev) => !prev);
