@@ -6,6 +6,7 @@ import useGetCurrentUserPlayLists from "../../hooks/useGetCurrentUserPlayLists";
 import LoadingSpinner from "../../common/components/loadingSpinner";
 import useItemToPlayList from "../../hooks/useItemToPlayList";
 import { useToast } from "../../provider/ToastProvider";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
 interface TopResultProps {
   items?: Track[];
@@ -16,26 +17,20 @@ interface Position {
   left: number;
 }
 
-const contextMenuItems = ["Play", "Add to Playlist", "Go to Artist", "Share"];
-
-const formatDuration = (ms?: number) => {
-  if (!ms) return "";
-  const minutes = Math.floor(ms / 60000);
-  const seconds = Math.floor((ms % 60000) / 1000)
-    .toString()
-    .padStart(2, "0");
-  return `${minutes}:${seconds}`;
-};
-
 const TopSongs = ({ items }: TopResultProps) => {
   const [menuPosition, setMenuPosition] = useState<Position | null>(null);
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
+  const [hoveredTrackId, setHoveredTrackId] = useState<string | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const { showToast } = useToast();
-  // contextMenu 로직
-  const handleContextMenu = (event: React.MouseEvent, track: Track) => {
-    if (event.button !== 2) return; // 우클릭만 허용
+
+  const handleContextMenu = (
+    event: React.MouseEvent,
+    track: Track,
+    fromPlus: boolean
+  ) => {
+    if (event.button !== 2 && !fromPlus) return; // 우클릭만 허용
     event.preventDefault();
     setSelectedTrack(track);
     setMenuPosition({
@@ -61,19 +56,14 @@ const TopSongs = ({ items }: TopResultProps) => {
     };
   }, []);
 
-  // 너무 컴포넌트가 크다 -> 나중에 contextMenu만 따로 컴포넌트화 하는게 나을 듯
-  // 컨텍스트 메뉴에 플레이리스트 이름 목록 표현
   const { ref, inView } = useInView();
   const {
     data: playlist,
-    error,
     isLoading,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useGetCurrentUserPlayLists({
-    limit: 10,
-  });
+  } = useGetCurrentUserPlayLists({ limit: 10 });
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -81,7 +71,6 @@ const TopSongs = ({ items }: TopResultProps) => {
     }
   }, [inView]);
 
-  // 컨텍스트메뉴에서 선택된 노래 플리에 저장
   const { mutate: addItemToPlayList } = useItemToPlayList();
 
   const handleAddItemToPlayList = (id: string, uri: string) => {
@@ -92,6 +81,15 @@ const TopSongs = ({ items }: TopResultProps) => {
         position: 0,
       },
     });
+  };
+
+  const formatDuration = (ms?: number) => {
+    if (!ms) return "";
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000)
+      .toString()
+      .padStart(2, "0");
+    return `${minutes}:${seconds}`;
   };
 
   return (
@@ -110,12 +108,12 @@ const TopSongs = ({ items }: TopResultProps) => {
       {items?.slice(0, 4).map((track) => (
         <Box
           key={track.id}
-          onContextMenu={(e) => handleContextMenu(e, track)}
+          onContextMenu={(e) => handleContextMenu(e, track, false)}
+          onMouseEnter={() => setHoveredTrackId(track.id as string)}
+          onMouseLeave={() => setHoveredTrackId(null)}
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
-            gap: 2,
             padding: "8px",
             borderRadius: "6px",
             "&:hover": {
@@ -125,8 +123,8 @@ const TopSongs = ({ items }: TopResultProps) => {
             },
           }}
         >
-          {/* 왼쪽: 썸네일, 제목, 아티스트 */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          {/* 60%: 썸네일 + 정보 */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, flex: 6 }}>
             <Avatar
               src={track.album?.images?.[2]?.url}
               alt={track.name}
@@ -140,10 +138,28 @@ const TopSongs = ({ items }: TopResultProps) => {
             </Box>
           </Box>
 
-          {/* 오른쪽: duration */}
-          <Typography variant="body2" color="text.secondary">
-            {formatDuration(track.duration_ms)}
-          </Typography>
+          {/* 20%: Add 버튼 */}
+          <Box sx={{ flex: 2, display: "flex", justifyContent: "center" }}>
+            <AddCircleOutlineIcon
+              fontSize="medium"
+              onClick={(e) => handleContextMenu(e, track, true)}
+              sx={{ cursor: "pointer" }}
+            />
+          </Box>
+
+          {/* 20%: duration */}
+          <Box
+            sx={{
+              flex: 2,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Typography variant="body2" color="text.secondary">
+              {formatDuration(track.duration_ms)}
+            </Typography>
+          </Box>
         </Box>
       ))}
 
@@ -191,6 +207,7 @@ const TopSongs = ({ items }: TopResultProps) => {
                     selectedTrack?.uri as string
                   );
                   showToast("플레이리스트에 저장되었습니다.");
+                  handleClose();
                 }}
                 sx={{
                   px: 2,

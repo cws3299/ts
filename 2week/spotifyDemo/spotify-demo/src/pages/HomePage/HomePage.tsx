@@ -15,18 +15,21 @@ const HomePage = () => {
 
   return (
     <Box
-    // sx={{
-    //   height: "100%",
-    //   overflowY: "auto",
-    //   display: "flex",
-    //   flexDirection: "column",
-    //   gap: "30px",
-    //   padding: 2,
-    // }}
+      sx={{
+        height: "100%",
+        overflowY: "auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: "30px",
+        padding: 2,
+        "&::-webkit-scrollbar": {
+          display: "none",
+        },
+      }}
     >
       <NewReleases />
 
-      {/* {artistTopTracksList?.map((trackData, index) => (
+      {artistTopTracksList?.map((trackData, index) => (
         <ArtistTopTracks
           data={trackData}
           error={error}
@@ -34,7 +37,7 @@ const HomePage = () => {
           artistName={artistNameList[index]}
           key={index}
         />
-      ))} */}
+      ))}
     </Box>
   );
 };

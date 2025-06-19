@@ -26,7 +26,7 @@ const ReleaseAlbumCard = ({ image, name, artistName }: Props) => {
       }}
     >
       <BaseCard>
-        <Box sx={{ position: "relative" }}>
+        <Box sx={{ position: "relative", width: "100%" }}>
           <CardImage src={image} />
 
           <Box

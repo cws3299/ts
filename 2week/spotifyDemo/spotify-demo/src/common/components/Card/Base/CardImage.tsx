@@ -10,9 +10,10 @@ const CardImage = ({ src }: Props) => {
       src={src}
       style={{
         width: "100%",
-        height: "100%",
+        aspectRatio: "1",
         objectFit: "cover",
         borderRadius: 8,
+        display: "block",
       }}
     />
   );
