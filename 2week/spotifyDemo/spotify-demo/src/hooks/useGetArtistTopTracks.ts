@@ -18,5 +18,3 @@ const useGetArtistTopTracks = (artistId: string | undefined) => {
 };
 
 export default useGetArtistTopTracks;
-
-// 24nUVBIlCGi4twz4nYxJum
