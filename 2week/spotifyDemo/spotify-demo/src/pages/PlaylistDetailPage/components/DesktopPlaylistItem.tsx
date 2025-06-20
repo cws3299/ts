@@ -3,7 +3,7 @@ import { PlaylistTrack } from "../../../models/playlist";
 import { Episode, Track } from "../../../models/track";
 import { convertPlayListItem } from "../../../utils/calculate";
 
-interface DesktopPlaylistItemProps {
+interface PlaylistItemProps {
   index: number;
   item: PlaylistTrack;
 }
@@ -22,7 +22,7 @@ const HoverRow = styled(TableRow)(() => ({
   },
 }));
 
-const DesktopPlaylistItem = ({ item, index }: DesktopPlaylistItemProps) => {
+const DesktopPlaylistItem = ({ item, index }: PlaylistItemProps) => {
   const isEpisode = (track: Track | Episode): track is Episode => {
     return "description" in track;
   };

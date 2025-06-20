@@ -45,7 +45,7 @@ const MobileBottomBar = () => {
         />
         <BottomNavigationAction
           label="Your Library"
-          value="/library"
+          value="/playlist"
           icon={<LibraryMusic />}
         />
       </BottomNavigation>

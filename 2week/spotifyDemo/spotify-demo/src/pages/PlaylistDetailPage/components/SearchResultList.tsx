@@ -1,4 +1,11 @@
-import { Box, Typography, Avatar, Button } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Avatar,
+  Button,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
 import { Track } from "../../../models/track";
 import { useParams } from "react-router";
 import { useState } from "react";
@@ -31,6 +38,9 @@ const SearchResultList = ({ list }: SearchResultListProps) => {
       },
     });
   };
+
+  const theme = useTheme();
+  const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
 
   return (
     <Box>
@@ -69,11 +79,13 @@ const SearchResultList = ({ list }: SearchResultListProps) => {
               </Typography>
             </Box>
 
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="body2" color="white">
-                {track.album?.name}
-              </Typography>
-            </Box>
+            {isMdUp ? (
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="body2" color="white">
+                  {track.album?.name}
+                </Typography>
+              </Box>
+            ) : null}
 
             <Button
               size="small"

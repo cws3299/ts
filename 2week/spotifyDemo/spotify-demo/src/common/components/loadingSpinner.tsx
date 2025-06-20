@@ -1,11 +1,17 @@
-import React from "react";
+import { Box } from "@mui/material";
 import { MoonLoader } from "react-spinners";
 
 const LoadingSpinner = () => {
   return (
-    <div>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       <MoonLoader color="#1db954" />
-    </div>
+    </Box>
   );
 };
 

@@ -1,4 +1,12 @@
-import { Avatar, Box, Typography, styled, InputBase } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Typography,
+  styled,
+  InputBase,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
 import { useState, useRef, useLayoutEffect, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import SearchIcon from "@mui/icons-material/Search";
@@ -6,6 +14,7 @@ import LoginButton from "../../common/components/LoginButton";
 import useGetCurrentUserProfile from "../../hooks/useGetCurrentUserProfile";
 import { useAuthStore } from "../../state/AuthStore";
 import { Margin } from "@mui/icons-material";
+import LibraryHead from "./LibraryHead";
 
 const AvatarButton = styled(Box)({
   display: "flex",
@@ -79,6 +88,7 @@ const Navbar = () => {
 
   const isSearchPage = location.pathname.startsWith("/search");
   const { keyword } = useParams<{ keyword: string }>();
+  const isPlayListPage = location.pathname === "/playlist";
 
   useEffect(() => {
     if (isSearchPage && keyword) {
@@ -128,6 +138,9 @@ const Navbar = () => {
     }
   }, [userProfile]);
 
+  const theme = useTheme();
+  const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
+
   return (
     <Box
       display="flex"
@@ -139,7 +152,7 @@ const Navbar = () => {
       className="testtest"
       gap={2}
     >
-      {isSearchPage ? (
+      {isSearchPage && !isPlayListPage ? (
         <SearchBox focused={isFocused}>
           <SearchIcon sx={{ color: "#aaa", fontSize: 20 }} />
           <SearchInput
@@ -153,6 +166,8 @@ const Navbar = () => {
       ) : (
         <Box sx={{ width: 300, height: 40 }} />
       )}
+
+      {isPlayListPage && !isMdUp ? <LibraryHead /> : null}
 
       {userProfile ? (
         <RelativeWrapper>

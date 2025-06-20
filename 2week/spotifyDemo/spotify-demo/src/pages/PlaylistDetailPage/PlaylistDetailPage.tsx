@@ -1,7 +1,8 @@
+import { useEffect } from "react";
 import { Navigate, useParams } from "react-router";
-import useGetPlayList from "../../hooks/useGetPlayList";
-import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import {
+  useTheme,
+  useMediaQuery,
   Box,
   Grid,
   Paper,
@@ -12,27 +13,36 @@ import {
   Typography,
   styled,
 } from "@mui/material";
-import DefaultImage from "../../common/components/DefaultImage";
-import useGetPlaylistItems from "../../hooks/useGetPlaylistItems";
-import DesktopPlaylistItem from "./components/DesktopPlaylistItem";
-import { PAGE_LIMIT } from "../../config/commonConfig";
-import { useEffect } from "react";
-import LoadingSpinner from "../../common/components/loadingSpinner";
+import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import { useInView } from "react-intersection-observer";
-import EmptyPlaylistWithSearch from "./components/EmptyPlaylistWithSearch";
+
+import useGetPlayList from "../../hooks/useGetPlayList";
+import useGetPlaylistItems from "../../hooks/useGetPlaylistItems";
 import { useAuthStore } from "../../state/AuthStore";
 import UnauthorizedPage from "../../layout/components/UnAuthorizedPage";
+import LoadingSpinner from "../../common/components/loadingSpinner";
+import EmptyPlaylistWithSearch from "./components/EmptyPlaylistWithSearch";
+import DesktopPlaylistItem from "./components/DesktopPlaylistItem";
+import DefaultImage from "../../common/components/DefaultImage";
+import { PAGE_LIMIT } from "../../config/commonConfig";
+import MobilePlaylistItem from "./components/MobilePlaylistitem";
 
 const HEADER_HEIGHT = 280;
 
-const PlaylistHeader = styled(Grid)({
+const PlaylistHeader = styled(Grid)(({ theme }) => ({
   display: "flex",
   alignItems: "stretch",
   background: "linear-gradient(transparent 0, rgba(0, 0, 0, .5) 100%)",
-  padding: "16px",
+  padding: theme.spacing(2),
   maxHeight: `${HEADER_HEIGHT}px`,
   overflow: "hidden",
-});
+  [theme.breakpoints.down("sm")]: {
+    flexDirection: "column",
+    alignItems: "center",
+    gap: theme.spacing(2),
+    maxHeight: "none",
+  },
+}));
 
 const ImageGrid = styled(Grid)(({ theme }) => ({
   [theme.breakpoints.down("sm")]: {
@@ -42,16 +52,26 @@ const ImageGrid = styled(Grid)(({ theme }) => ({
   },
 }));
 
-const AlbumImage = styled("img")(() => ({
-  borderRadius: "8px",
-  height: "100%",
-  maxHeight: "240px",
+const AlbumImage = styled("img")(({ theme }) => ({
+  borderRadius: theme.shape.borderRadius,
+  maxHeight: 240,
   width: "auto",
+  [theme.breakpoints.down("sm")]: {
+    width: "80%",
+    maxHeight: "none",
+  },
 }));
 
-const ResponsiveTypography = styled(Typography)(() => ({
-  fontSize: "3rem",
-  textAlign: "left",
+const ResponsiveTypography = styled(Typography)(({ theme }) => ({
+  color: "#fff",
+  [theme.breakpoints.down("sm")]: {
+    fontSize: "1.5rem",
+    textAlign: "center",
+  },
+  [theme.breakpoints.up("sm")]: {
+    fontSize: "3rem",
+    textAlign: "left",
+  },
 }));
 
 const PlayListInfo = styled(Grid)(() => ({
@@ -72,7 +92,9 @@ const TableBodyContainer = styled("div")(() => ({
   overflowY: "auto",
   scrollbarWidth: "thin",
   scrollbarColor: "#999 transparent",
-
+  display: "flex",
+  flexDirection: "column",
+  gap: 6,
   "&::-webkit-scrollbar": {
     width: "6px",
     display: "auto",
@@ -89,9 +111,11 @@ const TableBodyContainer = styled("div")(() => ({
   },
 }));
 
-const PlaylistDetailPage = () => {
+export default function PlaylistDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const userId = useAuthStore((state) => state.userId);
+  const userId = useAuthStore((s) => s.userId);
+  const theme = useTheme();
+  const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
 
   const {
     data: playlist,
@@ -101,42 +125,33 @@ const PlaylistDetailPage = () => {
 
   const {
     data: playlistItems,
-    isLoading: isPlaylistItemsLoading,
-    error: playlistItemsError,
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
   } = useGetPlaylistItems({
     playlist_id: id as string,
     limit: PAGE_LIMIT,
-    offset: 0,
   });
-
   const { ref, inView } = useInView();
-
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [inView]);
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  if (!userId) {
-    return <UnauthorizedPage />;
-  }
+  if (!userId) return <UnauthorizedPage />;
+  if (!id) return <Navigate to="/" replace />;
 
-  if (id === undefined) {
-    return <Navigate to="/" />;
-  }
+  if (isPlaylistLoading || !playlist) return <LoadingSpinner />;
+  if (playlistError)
+    return <Typography color="error">{playlistError.message}</Typography>;
 
   return (
     <BackgroundDiv>
       <PlaylistHeader container spacing={7}>
         <ImageGrid>
-          {playlist?.images ? (
-            <AlbumImage
-              src={playlist?.images[0].url}
-              alt="playlist_cover.jpg"
-            />
+          {playlist.images?.[0]?.url ? (
+            <AlbumImage src={playlist.images[0].url} alt="cover" />
           ) : (
             <DefaultImage>
               <MusicNoteIcon fontSize="large" />
@@ -145,13 +160,13 @@ const PlaylistDetailPage = () => {
         </ImageGrid>
         <PlayListInfo>
           <Box>
-            <ResponsiveTypography variant="h1" color="white">
-              {playlist?.name}
+            <ResponsiveTypography variant="h1">
+              {playlist.name}
             </ResponsiveTypography>
             <Box display="flex" alignItems="center">
               <img
                 src="https://i.scdn.co/image/ab67757000003b8255c25988a6ac314394d3fbf5"
-                width="20px"
+                width="20"
                 alt="owner"
               />
               <Typography
@@ -160,18 +175,34 @@ const PlaylistDetailPage = () => {
                 ml={1}
                 fontWeight={700}
               >
-                {playlist?.owner?.display_name || "unknown"}
+                {playlist.owner?.display_name || "unknown"}
               </Typography>
-              <Typography variant="subtitle1" color="white">
-                • {playlist?.tracks?.total} songs
+              <Typography variant="subtitle1" color="white" ml={1}>
+                • {playlist.tracks.total} songs
               </Typography>
             </Box>
           </Box>
         </PlayListInfo>
       </PlaylistHeader>
 
-      {playlist?.tracks?.total === 0 ? (
+      {playlist.tracks.total === 0 ? (
         <EmptyPlaylistWithSearch />
+      ) : !isMdUp ? (
+        <TableBodyContainer>
+          {playlistItems?.pages.map((page, pageIndex) =>
+            page.items.map((item, itemIndex) => (
+              <MobilePlaylistItem
+                key={`${pageIndex}-${itemIndex}`}
+                item={item}
+                index={pageIndex * PAGE_LIMIT + itemIndex + 1}
+              />
+            ))
+          )}
+          <div>
+            <div ref={ref} style={{ height: 1 }} />
+            {isFetchingNextPage && <LoadingSpinner />}
+          </div>
+        </TableBodyContainer>
       ) : (
         <>
           <Table stickyHeader>
@@ -192,9 +223,9 @@ const PlaylistDetailPage = () => {
                 {playlistItems?.pages.map((page, pageIndex) =>
                   page.items.map((item, itemIndex) => (
                     <DesktopPlaylistItem
+                      key={`${pageIndex}-${itemIndex}`}
                       item={item}
                       index={pageIndex * PAGE_LIMIT + itemIndex + 1}
-                      key={`${pageIndex}-${itemIndex}`}
                     />
                   ))
                 )}
@@ -211,6 +242,4 @@ const PlaylistDetailPage = () => {
       )}
     </BackgroundDiv>
   );
-};
-
-export default PlaylistDetailPage;
+}

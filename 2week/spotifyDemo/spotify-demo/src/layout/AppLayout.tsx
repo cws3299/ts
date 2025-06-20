@@ -33,6 +33,9 @@ const ContentBox = styled(Box)(({ theme }) => ({
   padding: "8px",
   marginBottom: "8px",
   marginRight: "8px",
+  [theme.breakpoints.down("sm")]: {
+    paddingBottom: theme.spacing(8),
+  },
 }));
 
 const NavList = styled("ul")({
