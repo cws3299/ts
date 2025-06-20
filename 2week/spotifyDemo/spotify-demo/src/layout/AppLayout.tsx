@@ -4,6 +4,7 @@ import { Home, Search } from "@mui/icons-material";
 import LibraryHead from "./components/LibraryHead";
 import Library from "./components/Library";
 import Navbar from "./components/Navbar";
+import MobileBottomBar from "./MobileBottonBar";
 
 const Layout = styled("div")({
   display: "flex",
@@ -87,6 +88,7 @@ const AppLayout = () => {
         <Navbar />
         <Outlet />
       </ContentBox>
+      <MobileBottomBar />
     </Layout>
   );
 };

@@ -7,6 +7,7 @@ import LoadingSpinner from "../../common/components/loadingSpinner";
 import useItemToPlayList from "../../hooks/useItemToPlayList";
 import { useToast } from "../../provider/ToastProvider";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import { useAuthStore } from "../../state/AuthStore";
 
 interface TopResultProps {
   items?: Track[];
@@ -25,11 +26,16 @@ const TopSongs = ({ items }: TopResultProps) => {
   const menuRef = useRef<HTMLDivElement | null>(null);
   const { showToast } = useToast();
 
+  const userId = useAuthStore((state) => state.userId);
+
   const handleContextMenu = (
     event: React.MouseEvent,
     track: Track,
     fromPlus: boolean
   ) => {
+    console.log(userId);
+
+    if (!userId) return showToast("로그인이 필요합니다.");
     if (event.button !== 2 && !fromPlus) return; // 우클릭만 허용
     event.preventDefault();
     setSelectedTrack(track);

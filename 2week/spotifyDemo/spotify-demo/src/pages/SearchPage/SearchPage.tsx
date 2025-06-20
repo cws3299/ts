@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
 import useGetSearchCategories from "../../hooks/useGetSearchCategories";
 import { useInView } from "react-intersection-observer";
 import LoadingSpinner from "../../common/components/loadingSpinner";
@@ -32,7 +32,11 @@ const SearchPage = () => {
     fetchNextPage,
   } = useGetSearchCategories();
 
-  const { ref, inView } = useInView({ threshold: 1 });
+  const theme = useTheme();
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: "100px 0px",
+  });
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -43,40 +47,34 @@ const SearchPage = () => {
   const categories =
     data?.pages.flatMap((page) => page.categories?.items ?? []) ?? [];
 
-  const grouped = Array.from(
-    { length: Math.ceil(categories.length / 3) },
-    (_, i) => categories.slice(i * 3, i * 3 + 3)
-  );
-
   return (
     <Box
       sx={{
         display: "flex",
         flexDirection: "column",
         flex: 1,
+        minHeight: 0,
         height: "100%",
         padding: "16px",
       }}
     >
-      <Typography
-        variant="h4"
-        fontWeight="bold"
-        color="white"
-        sx={{ height: 40, mb: 2 }}
-      >
+      <Typography variant="h4" fontWeight="bold" color="white" sx={{ mb: 2 }}>
         Browse All
       </Typography>
 
       <Box
         sx={{
           flex: 1,
+          minHeight: 0,
           overflowY: "auto",
           display: "flex",
-          flexDirection: "column",
+          flexWrap: "wrap",
+          alignContent: "flex-start",
           gap: 2,
+          overflowX: "hidden",
+          maxWidth: "100%",
           "&::-webkit-scrollbar": {
             width: "6px",
-            display: "auto",
           },
           "&::-webkit-scrollbar-track": {
             background: "transparent",
@@ -90,77 +88,74 @@ const SearchPage = () => {
           },
         }}
       >
-        {grouped.map((row, rowIndex) => {
-          const isLastRow = rowIndex === grouped.length - 1;
+        {categories.map((category, index) => {
+          const bgColor = bgColors[index % bgColors.length];
+
           return (
             <Box
-              key={rowIndex}
+              key={category.id}
               sx={{
-                display: "flex",
-                gap: 2,
-                width: "100%",
-                boxSizing: "border-box",
+                backgroundColor: bgColor,
+                borderRadius: "8px",
+                color: "white",
+                padding: 2,
+                height: 160,
+                flex: "1 1 90%",
+                maxWidth: "400px",
+                minWidth: 0,
+
+                [theme.breakpoints.up("sm")]: {
+                  flex: "1 1 calc(50% - 16px)",
+                },
+                [theme.breakpoints.up("md")]: {
+                  flex: "1 1 calc(33% - 16px)",
+                },
+
+                position: "relative",
+                overflow: "hidden",
+                transition: "transform 0.2s ease-in-out",
+                "&:hover": {
+                  transform: "scale(1.04)",
+                },
               }}
             >
-              {row.map((category, idx) => {
-                const bgColor =
-                  bgColors[(rowIndex * 3 + idx) % bgColors.length];
-
-                return (
-                  <Box
-                    key={category.id}
-                    sx={{
-                      flex: 1,
-                      minWidth: 0,
-                      height: 160,
-                      backgroundColor: bgColor,
-                      color: "white",
-                      borderRadius: "8px",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      padding: 2,
-                      position: "relative",
-                      overflow: "hidden",
-                      transition: "transform 0.2s ease-in-out",
-                      "&:hover": {
-                        transform: "scale(1.04)",
-                      },
-                    }}
-                  >
-                    <Typography
-                      variant="subtitle1"
-                      fontWeight="bold"
-                      sx={{ zIndex: 1 }}
-                    >
-                      {category.name}
-                    </Typography>
-                    <Box
-                      component="img"
-                      src={category.icons?.[0]?.url ?? ""}
-                      alt={category.name}
-                      sx={{
-                        width: 150,
-                        height: 150,
-                        position: "absolute",
-                        bottom: -10,
-                        right: -10,
-                        opacity: 0.7,
-                        transform: "rotate(25deg)",
-                        zIndex: 0,
-                      }}
-                    />
-                  </Box>
-                );
-              })}
-              {row.length < 3 &&
-                Array.from({ length: 3 - row.length }).map((_, i) => (
-                  <Box key={`empty-${i}`} sx={{ flex: 1 }} />
-                ))}
-              {isLastRow && <div ref={ref} style={{ height: 1 }} />}
+              <Typography
+                variant="subtitle1"
+                fontWeight="bold"
+                sx={{ zIndex: 1 }}
+              >
+                {category.name}
+              </Typography>
+              <Box
+                component="img"
+                src={category.icons?.[0]?.url ?? ""}
+                alt={category.name}
+                sx={{
+                  width: 150,
+                  height: 150,
+                  position: "absolute",
+                  bottom: -10,
+                  right: -10,
+                  opacity: 0.7,
+                  transform: "rotate(25deg)",
+                  zIndex: 0,
+                }}
+              />
             </Box>
           );
         })}
+
+        {hasNextPage && (
+          <Box
+            ref={ref}
+            sx={{
+              height: { xs: 200, sm: 64 },
+              width: "100%",
+              flexShrink: 0,
+            }}
+          />
+        )}
+
         {(isLoading || isFetchingNextPage) && <LoadingSpinner />}
       </Box>
     </Box>

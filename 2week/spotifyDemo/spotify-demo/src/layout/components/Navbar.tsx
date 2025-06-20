@@ -5,6 +5,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import LoginButton from "../../common/components/LoginButton";
 import useGetCurrentUserProfile from "../../hooks/useGetCurrentUserProfile";
 import { useAuthStore } from "../../state/AuthStore";
+import { Margin } from "@mui/icons-material";
 
 const AvatarButton = styled(Box)({
   display: "flex",
@@ -45,7 +46,7 @@ const RelativeWrapper = styled(Box)({
 
 const SearchBox = styled(Box, {
   shouldForwardProp: (prop) => prop !== "focused",
-})<{ focused: boolean }>(({ focused }) => ({
+})<{ focused: boolean }>(({ focused, theme }) => ({
   display: "flex",
   alignItems: "center",
   border: `1px solid ${focused ? "#1DB954" : "#444"}`,
@@ -136,12 +137,13 @@ const Navbar = () => {
       minHeight="64px"
       px={3}
       className="testtest"
+      gap={2}
     >
       {isSearchPage ? (
         <SearchBox focused={isFocused}>
           <SearchIcon sx={{ color: "#aaa", fontSize: 20 }} />
           <SearchInput
-            placeholder={isFocused ? "" : "What do you want to play?"}
+            placeholder={isFocused ? "" : "Let's find some music"}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             value={search}
