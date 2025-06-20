@@ -1,4 +1,3 @@
-// src/pages/search/TopSongs.tsx
 import React, { useState, useRef, useEffect } from "react";
 import {
   Avatar,
@@ -88,7 +87,6 @@ const TopSongs: React.FC<TopSongsProps> = ({ items }) => {
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
-  // 재생 시간 포맷터
   const formatDuration = (ms?: number) => {
     if (!ms) return "";
     const m = Math.floor(ms / 60000);
