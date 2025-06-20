@@ -1,4 +1,3 @@
-// components/MobileBottomNav.tsx
 import { BottomNavigation, BottomNavigationAction, Paper } from "@mui/material";
 import { Home, Search, LibraryMusic } from "@mui/icons-material";
 import { useLocation, useNavigate } from "react-router";

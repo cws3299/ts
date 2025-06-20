@@ -54,6 +54,8 @@ const Library = () => {
     }
   }, [inView]);
 
+  console.log(data, user, isLoading, error);
+
   if (!user) return <EmptyPlaylist />;
   if (isLoading) {
     return <LoadingSpinner />;

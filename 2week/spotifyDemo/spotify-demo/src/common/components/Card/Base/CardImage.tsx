@@ -1,5 +1,3 @@
-// components/Card/Base/CardImage.tsx
-
 interface Props {
   src: string;
 }
