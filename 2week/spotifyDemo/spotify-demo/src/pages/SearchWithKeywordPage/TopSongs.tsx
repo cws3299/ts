@@ -1,15 +1,24 @@
-import { Avatar, Box, Typography, Paper } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
-import { Track } from "../../models/track";
+// src/pages/search/TopSongs.tsx
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Avatar,
+  Box,
+  Typography,
+  Paper,
+  Popover,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { useInView } from "react-intersection-observer";
 import useGetCurrentUserPlayLists from "../../hooks/useGetCurrentUserPlayLists";
 import LoadingSpinner from "../../common/components/loadingSpinner";
 import useItemToPlayList from "../../hooks/useItemToPlayList";
 import { useToast } from "../../provider/ToastProvider";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { useAuthStore } from "../../state/AuthStore";
+import { Track } from "../../models/track";
 
-interface TopResultProps {
+interface TopSongsProps {
   items?: Track[];
 }
 
@@ -18,225 +27,239 @@ interface Position {
   left: number;
 }
 
-const TopSongs = ({ items }: TopResultProps) => {
+const TopSongs: React.FC<TopSongsProps> = ({ items }) => {
+  const theme = useTheme();
+  const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
+
+  // 컨텍스트 메뉴 상태
   const [menuPosition, setMenuPosition] = useState<Position | null>(null);
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
-  const [hoveredTrackId, setHoveredTrackId] = useState<string | null>(null);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  // 로그인 & 토스트
   const { showToast } = useToast();
+  const userId = useAuthStore((s) => s.userId);
 
-  const userId = useAuthStore((state) => state.userId);
-
-  const handleContextMenu = (
-    event: React.MouseEvent,
-    track: Track,
-    fromPlus: boolean
-  ) => {
-    console.log(userId);
-
-    if (!userId) return showToast("로그인이 필요합니다.");
-    if (event.button !== 2 && !fromPlus) return; // 우클릭만 허용
-    event.preventDefault();
-    setSelectedTrack(track);
-    setMenuPosition({
-      top: event.clientY,
-      left: event.clientX,
-    });
-  };
-
-  const handleClose = () => {
-    setMenuPosition(null);
-    setSelectedTrack(null);
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        handleClose();
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const { ref, inView } = useInView();
+  // 플레이리스트 + 무한 스크롤
   const {
-    data: playlist,
-    isLoading,
+    data: playlists,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
   } = useGetCurrentUserPlayLists({ limit: 10 });
-
+  const { ref: loadMoreRef, inView } = useInView();
   useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [inView]);
+    if (inView && hasNextPage && !isFetchingNextPage) fetchNextPage();
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  // 곡 추가 뮤테이션
   const { mutate: addItemToPlayList } = useItemToPlayList();
 
-  const handleAddItemToPlayList = (id: string, uri: string) => {
-    addItemToPlayList({
-      playlist_id: id,
-      params: {
-        uris: [uri],
-        position: 0,
-      },
-    });
+  // 우클릭 or + 클릭 → 메뉴 열기
+  const handleContextMenu = (
+    e: React.MouseEvent,
+    track: Track,
+    fromPlus: boolean
+  ) => {
+    if (!userId) {
+      showToast("로그인이 필요합니다.");
+      return;
+    }
+    if (e.button !== 2 && !fromPlus) return;
+    e.preventDefault();
+    setSelectedTrack(track);
+    setMenuPosition({ top: e.clientY, left: e.clientX });
   };
 
+  // 메뉴 닫기
+  const handleCloseMenu = () => {
+    setMenuPosition(null);
+    setSelectedTrack(null);
+  };
+
+  // 메뉴 외부 클릭 감지
+  const menuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const onClickOutside = (ev: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(ev.target as Node)) {
+        handleCloseMenu();
+      }
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  // 재생 시간 포맷터
   const formatDuration = (ms?: number) => {
     if (!ms) return "";
-    const minutes = Math.floor(ms / 60000);
-    const seconds = Math.floor((ms % 60000) / 1000)
+    const m = Math.floor(ms / 60000);
+    const s = Math.floor((ms % 60000) / 1000)
       .toString()
       .padStart(2, "0");
-    return `${minutes}:${seconds}`;
+    return `${m}:${s}`;
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        position: "relative",
-      }}
-    >
-      <Typography variant="h6" fontWeight="bold" mb={1}>
-        Top Songs
-      </Typography>
-
-      {items?.slice(0, 4).map((track) => (
-        <Box
-          key={track.id}
-          onContextMenu={(e) => handleContextMenu(e, track, false)}
-          onMouseEnter={() => setHoveredTrackId(track.id as string)}
-          onMouseLeave={() => setHoveredTrackId(null)}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            padding: "8px",
-            borderRadius: "6px",
-            "&:hover": {
-              backgroundColor: "rgba(255, 255, 255, 0.08)",
-              cursor: "pointer",
-              color: "#1db954",
-            },
-          }}
-        >
-          {/* 60%: 썸네일 + 정보 */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2, flex: 6 }}>
-            <Avatar
-              src={track.album?.images?.[2]?.url}
-              alt={track.name}
-              sx={{ width: 40, height: 40 }}
-            />
-            <Box>
-              <Typography variant="body1">{track.name}</Typography>
-              <Typography variant="body2" color="text.secondary">
-                {track.artists?.[0]?.name}
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* 20%: Add 버튼 */}
-          <Box sx={{ flex: 2, display: "flex", justifyContent: "center" }}>
-            <AddCircleOutlineIcon
-              fontSize="medium"
-              onClick={(e) => handleContextMenu(e, track, true)}
-              sx={{ cursor: "pointer" }}
-            />
-          </Box>
-
-          {/* 20%: duration */}
-          <Box
+    <>
+      {/* 모바일 레이아웃 */}
+      {!isMdUp && (
+        <>
+          <Typography variant="h6" fontWeight="bold" mb={2}>
+            Songs
+          </Typography>
+          <Paper
             sx={{
-              flex: 2,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              bgcolor: "background.paper",
+              borderRadius: 2,
+              p: 2,
+              mb: 3,
             }}
           >
-            <Typography variant="body2" color="text.secondary">
-              {formatDuration(track.duration_ms)}
-            </Typography>
-          </Box>
-        </Box>
-      ))}
+            {items?.slice(0, 4).map((track, idx) => (
+              <SongRow
+                key={track.id}
+                track={track}
+                onContextMenu={handleContextMenu}
+                formatDuration={formatDuration}
+                isDesktop={false}
+              />
+            ))}
+            <div ref={loadMoreRef}>
+              {isFetchingNextPage && <LoadingSpinner />}
+            </div>
+          </Paper>
+        </>
+      )}
 
-      {/* Context Menu */}
-      {menuPosition && (
-        <Paper
-          ref={menuRef}
-          elevation={3}
-          sx={{
-            position: "fixed",
-            top: menuPosition.top,
-            left: menuPosition.left,
+      {/* 데스크탑 레이아웃 */}
+      {isMdUp && (
+        <>
+          <Typography variant="h6" fontWeight="bold" mb={1}>
+            Top Songs
+          </Typography>
+          {items?.slice(0, 4).map((track, idx) => (
+            <SongRow
+              key={track.id}
+              track={track}
+              onContextMenu={handleContextMenu}
+              formatDuration={formatDuration}
+              isDesktop={true}
+            />
+          ))}
+          <div ref={loadMoreRef}>
+            {isFetchingNextPage && <LoadingSpinner />}
+          </div>
+        </>
+      )}
+
+      {/* Popover 컨텍스트 메뉴 */}
+      <Popover
+        open={!!menuPosition}
+        anchorReference="anchorPosition"
+        anchorPosition={menuPosition ?? undefined}
+        onClose={handleCloseMenu}
+        anchorOrigin={{ vertical: "top", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+        PaperProps={{
+          ref: menuRef,
+          elevation: 3,
+          sx: {
             minWidth: 160,
             maxHeight: 200,
             overflowY: "auto",
-            backgroundColor: "#282828",
+            bgcolor: "#282828",
             color: "#fff",
             borderRadius: 1,
-            zIndex: 9999,
-            "&::-webkit-scrollbar": {
-              display: "none",
-            },
-            "&::-webkit-scrollbar-track": {
-              backgroundColor: "transparent",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "#c1c1c1",
-              borderRadius: 4,
-            },
-            "&::-webkit-scrollbar-thumb:hover": {
-              backgroundColor: "#a0a0a0",
-            },
-          }}
-        >
-          {playlist?.pages.map((page, pageIndex) =>
-            page.items.map((item, itemIndex) => (
-              <Box
-                key={item.id}
-                onMouseEnter={() => setHoveredIndex(pageIndex * 10 + itemIndex)}
-                onMouseLeave={() => setHoveredIndex(null)}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAddItemToPlayList(
-                    item.id as string,
-                    selectedTrack?.uri as string
-                  );
-                  showToast("플레이리스트에 저장되었습니다.");
-                  handleClose();
-                }}
-                sx={{
-                  px: 2,
-                  py: 1,
-                  cursor: "pointer",
-                  backgroundColor:
-                    hoveredIndex === pageIndex * 10 + itemIndex
-                      ? "#1db954"
-                      : "transparent",
-                  "&:hover": {
-                    backgroundColor: "#1db954",
-                  },
-                }}
-              >
-                {item.name}
-              </Box>
-            ))
-          )}
-          <div ref={ref}>{isFetchingNextPage && <LoadingSpinner />}</div>
-        </Paper>
-      )}
-    </Box>
+            "&::-webkit-scrollbar": { display: "none" },
+          },
+        }}
+      >
+        {playlists?.pages.map((page, pi) =>
+          page.items.map((pl, ii) => (
+            <Box
+              key={pl.id}
+              onClick={(e) => {
+                e.stopPropagation();
+                addItemToPlayList({
+                  playlist_id: pl.id as string,
+                  params: { uris: [selectedTrack?.uri!], position: 0 },
+                });
+                showToast("플레이리스트에 저장되었습니다.");
+                handleCloseMenu();
+              }}
+              sx={{
+                px: 2,
+                py: 1,
+                cursor: "pointer",
+                "&:hover": { backgroundColor: "#1db954" },
+              }}
+            >
+              {pl.name}
+            </Box>
+          ))
+        )}
+      </Popover>
+    </>
   );
 };
+
+interface SongRowProps {
+  track: Track;
+  onContextMenu: (e: React.MouseEvent, track: Track, fromPlus: boolean) => void;
+  formatDuration: (ms?: number) => string;
+  isDesktop: boolean;
+}
+
+const SongRow: React.FC<SongRowProps> = ({
+  track,
+  onContextMenu,
+  formatDuration,
+  isDesktop,
+}) => (
+  <Box
+    onContextMenu={(e) => onContextMenu(e, track, false)}
+    sx={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      p: isDesktop ? 1 : 0.5,
+      mb: isDesktop ? 1 : 2,
+      borderRadius: 1,
+      "&:hover": {
+        backgroundColor: "rgba(255,255,255,0.08)",
+        cursor: "pointer",
+      },
+    }}
+  >
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <Avatar
+        src={track.album?.images?.[2]?.url}
+        sx={{ width: isDesktop ? 40 : 32, height: isDesktop ? 40 : 32 }}
+      />
+      <Box>
+        <Typography fontSize={isDesktop ? "1rem" : "0.9rem"}>
+          {track.name}
+        </Typography>
+        <Typography
+          color="text.secondary"
+          fontSize={isDesktop ? "0.875rem" : "0.75rem"}
+        >
+          {track.artists?.[0]?.name}
+        </Typography>
+      </Box>
+    </Box>
+    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+      <AddCircleOutlineIcon
+        onClick={(e) => onContextMenu(e, track, true)}
+        sx={{ cursor: "pointer" }}
+      />
+      <Typography
+        color="text.secondary"
+        fontSize={isDesktop ? "0.875rem" : "0.75rem"}
+      >
+        {formatDuration(track.duration_ms)}
+      </Typography>
+    </Box>
+  </Box>
+);
 
 export default TopSongs;

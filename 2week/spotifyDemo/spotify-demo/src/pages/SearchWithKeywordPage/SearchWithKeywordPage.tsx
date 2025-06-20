@@ -1,21 +1,17 @@
-import { Box } from "@mui/material";
-import { useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
+import { Box, useTheme, useMediaQuery } from "@mui/material";
+import { useParams } from "react-router";
 import { SEARCH_TYPE } from "../../models/search";
 import useGetSearchResult from "../../hooks/useGetSearchResult";
 import EmptySearchResult from "./EmptySearchResult";
 import TopArea from "./TopArea";
+import TopResult from "./TopResult";
+import TopSongs from "./TopSongs";
 import AlbumsBox from "./AlbumsBox";
-import ArtistBox from "./ArtistsBox";
+import ArtistsBox from "./ArtistsBox";
 
 const SearchWithKeywordPage = () => {
   const { keyword } = useParams<{ keyword: string }>();
-
-  const {
-    data: playlist,
-    error: playlistError,
-    isLoading: isPlaylistLoading,
-  } = useGetSearchResult({
+  const { data: playlist } = useGetSearchResult({
     q: keyword as string,
     type: [
       SEARCH_TYPE.Album,
@@ -37,34 +33,66 @@ const SearchWithKeywordPage = () => {
     "episodes",
     "shows",
   ];
-
   const isEmptyResult =
     playlist &&
     typesToCheck.every((key) => (playlist as any)[key]?.total === 0);
 
+  // Breakpoint 체크
+  const theme = useTheme();
+  const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
+
   return (
     <Box
       sx={{
-        display: "flex",
-        flexDirection: "column",
-        flex: 1,
-        height: "100%",
-        padding: "16px",
-        minHeight: 0,
+        p: { xs: 1, sm: 2, md: 4 },
+        height: { xs: "auto", md: "100%" },
+        overflowY: "auto",
+
+        ...(isMdUp && {
+          "&::-webkit-scrollbar": {
+            width: "6px",
+            display: "auto",
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "transparent",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "rgba(255, 255, 255, 0.3)",
+            borderRadius: "8px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "rgba(255, 255, 255, 0.5)",
+          },
+        }),
       }}
     >
       {isEmptyResult ? (
         <EmptySearchResult />
-      ) : (
+      ) : isMdUp ? (
         <>
-          <Box sx={{ flex: 4, minHeight: 0 }}>
+          <Box mb={4}>
             <TopArea tracks={playlist?.tracks} />
           </Box>
-          <Box sx={{ flex: 3, minHeight: 0 }}>
+          <Box mb={4}>
             <AlbumsBox albums={playlist?.albums} />
           </Box>
-          <Box sx={{ flex: 3, minHeight: 0 }}>
-            <ArtistBox artists={playlist?.artists} />
+          <Box mb={4}>
+            <ArtistsBox artists={playlist?.artists} />
+          </Box>
+        </>
+      ) : (
+        <>
+          <Box mb={3}>
+            <TopResult item={playlist?.tracks?.items?.[0]} />
+          </Box>
+          <Box mb={3}>
+            <TopSongs items={playlist?.tracks?.items} />
+          </Box>
+          <Box mb={3}>
+            <ArtistsBox artists={playlist?.artists} />
+          </Box>
+          <Box mb={3}>
+            <AlbumsBox albums={playlist?.albums} />
           </Box>
         </>
       )}
